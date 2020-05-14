@@ -611,7 +611,7 @@ int main() {
   
   auto info = [=](auto i_B, auto i_G, auto i_range, auto i_f, auto i_delay,
                  auto i_time, auto added) {
-    std::cout << "Try and press . . .\n--> Q <--   Activate Quarantine! \n--> M <--   Increase Delay of 200ms up to 1000ms! \n--> L <--   Decrease Delay of 200ms!"
+    std::cout << "Board: Susceptibles --> Orange // Infectious --> Red // Recovered --> Yellow\nTheory: Susceptibles --> Green // Infectious --> Red // Recovered --> Blue\nTry and press . . .\n--> Q <--   Activate Quarantine! \n--> M <--   Increase Delay of 200ms up to 1000ms! \n--> L <--   Decrease Delay of 200ms!"
     
     << "\nB = " << i_B << "\nG = " << i_G << "\nrange = " << i_range
               << "\nf = " << i_f << "\ndelay = " << i_delay
@@ -732,13 +732,13 @@ int main() {
 
         board_S_vertices.push_back(
             sf::Vertex(sf::Vector2f(time_axis(), y_axis(board_condition.S)),
-                       sf::Color::Green));
+                       sf::Color(255, 127, 80)));
         board_I_vertices.push_back(
             sf::Vertex(sf::Vector2f(time_axis(), y_axis(board_condition.I)),
                        sf::Color::Red));
         board_R_vertices.push_back(
             sf::Vertex(sf::Vector2f(time_axis(), y_axis(board_condition.R)),
-                       sf::Color::Blue));
+                       sf::Color::Yellow));
 
         board_graph_window.draw(&board_S_vertices[0], board_S_vertices.size(),
                                 sf::Lines);
@@ -781,11 +781,11 @@ int main() {
             break;
           case (State::T):
             rectangle.setFillColor(sf::Color::Blue);
-            rectangle.setOutlineColor(sf::Color::Blue);
+            rectangle.setOutlineColor(sf::Color(230, 230, 230));
             break;
           case (State::B):
             rectangle.setFillColor(sf::Color::Black);
-            rectangle.setOutlineColor(sf::Color::Black);
+            rectangle.setOutlineColor(sf::Color(230, 230, 230));
             break;
           }
           rectangle.setPosition(x * cell_dim + margin, y * cell_dim + margin);
