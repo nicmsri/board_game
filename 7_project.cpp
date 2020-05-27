@@ -60,6 +60,12 @@ struct Condition {
 };
 
 ///////////////////////////////////////////////////
+// Setting up random seed /////////////////////////
+///////////////////////////////////////////////////
+
+std::default_random_engine gen(std::time(0));
+
+///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 
@@ -102,7 +108,7 @@ public:
   };
 
   void generate_initial_infected() {
-    std::default_random_engine gen(std::time(0));
+    
     std::uniform_int_distribution<> dist(0, n_ - 1);
     int counter = 0;
     while (counter != I0_) {
@@ -234,7 +240,7 @@ auto world_generation(const Board &board0, const Parameter &parameter) {
   Board board = board0;
   const auto num = board.get_n_();
 
-  std::default_random_engine gen(std::time(0));
+  
   std::uniform_int_distribution<> dist(0, num - 1);
 
   const int maximum_earth = 4;
@@ -364,7 +370,7 @@ Board evolve(const Board &board0) {
   const auto G = board0.get_G_();
   const auto f = board0.get_f_();
   Board board = board0;
-  std::default_random_engine gen(std::time(0)); // creates a generator
+   // creates a generator
 
   float S_count = 0.f;
   float I_count = 0.f;
@@ -503,6 +509,7 @@ void wait(const int &delay, const auto &delta) {
 ///////////////////////////////////////////////////
 
 int main() {
+
   const int n = 150;
   float B;     // beta, probability to get infected
   float G;     // gamma, probability to recover from infection
@@ -528,24 +535,24 @@ int main() {
       f = 0.20;    
       range = 2.f; 
       I0 = 3;
-      parameter = Parameter{3, 6, 7, 1.f, 1.f, 1.f, 1.f};
+      parameter = Parameter{2, 5, 7, 0.1, 0.1, 0.7, 0.8};
       N = static_cast<float>(n * n);
-    } else if (c == "o") {
+    } else if (c == "c") {
       B = 0.45;    
       G = 0.35;    
       f = 0.70;    
       range = 1.f; 
       I0 = 2;
-      parameter = Parameter{2, 5, 7, 0.01, 0.1, 1.f, 1.f};
+      parameter = Parameter{3, 6, 7, 1.f, 1.f, 1.f, 1.f};
       N = static_cast<float>(n * n);
     }
   };
 
   std::cout
       << "Welcome in The Board Game! \nIn order to continue please select one "
-         "of the following options: \n--> r <--   r for realistic, our best "
+         "of the following options: \n --> r <--   r for realistic, our best "
          "model! \n --> u <--   u for uncivilised, high infection rate, low "
-         "healing rate, low moving fraction. \n--> c <--   c for civilised, low "
+         "healing rate, low moving fraction. \n --> c <--   c for civilised, low "
          "infecion rate, high healing rate, high moving fraction. \n Please "
          "press one the following keys r, u, c... \n";
   std::string c;
@@ -564,7 +571,10 @@ int main() {
   // output //////////////////////////////////////
 
   // board_window dimension, cell dimension maximization ///
-  const int board_window_dim_max = 768;
+
+	const sf::VideoMode desktop = sf::VideoMode::getDesktopMode();  
+ 
+  const int board_window_dim_max = desktop.height;
   const int cell_dim = board_window_dim_max / (n + 4);
   const float float_cell_dim = static_cast<float>(cell_dim);
   const float thickness = 0.001 * n * float_cell_dim;
@@ -573,8 +583,8 @@ int main() {
 
   // graph dimension /////////////////////////////
 
-  const int graph_width = 400;
-  const int graph_height = 300;
+  const int graph_width = (desktop.width - window_dim) / 2;
+  const int graph_height = (desktop.height) * 3 / 10; // 30% of desktop's heigth
   const float float_graph_width = static_cast<float>(graph_width);
   const float float_graph_height = static_cast<float>(graph_height);
 
@@ -584,13 +594,13 @@ int main() {
   sf::RenderWindow board_window(sf::VideoMode(window_dim, window_dim),
                                 "Board evolution", sf::Style::Default);
   board_window.setVerticalSyncEnabled(true); // refresh window same as monitor
-  board_window.setPosition(sf::Vector2i(0, 0));
+  board_window.setPosition(sf::Vector2i(desktop.width - window_dim, 0));
 
   /////////////////////////////////////////////////////////////////
   sf::RenderWindow board_graph_window(sf::VideoMode(graph_width, graph_height),
                                       "Board Graph", sf::Style::Default);
   board_graph_window.setVerticalSyncEnabled(true);
-  board_graph_window.setPosition(sf::Vector2i(700, 0));
+  board_graph_window.setPosition(sf::Vector2i(graph_width, window_dim - graph_height));
   std::vector<sf::Vertex> board_S_vertices;
   std::vector<sf::Vertex> board_I_vertices;
   std::vector<sf::Vertex> board_R_vertices;
@@ -599,7 +609,7 @@ int main() {
   sf::RenderWindow SIR_graph_window(sf::VideoMode(graph_width, graph_height),
                                     "SIR Graph", sf::Style::Default);
   SIR_graph_window.setVerticalSyncEnabled(true);
-  SIR_graph_window.setPosition(sf::Vector2i(700, 400));
+  SIR_graph_window.setPosition(sf::Vector2i(0, window_dim - graph_height));
   std::vector<sf::Vertex> SIR_S_vertices;
   std::vector<sf::Vertex> SIR_I_vertices;
   std::vector<sf::Vertex> SIR_R_vertices;
@@ -706,8 +716,8 @@ int main() {
       }
     }
 
-    const float max_time = 400.f;
-    float speed = 4.f;
+    const float max_time = 150.f;
+    float speed = 1.f;
 
     // board_graph_window actions ////////////////////////////
     {
