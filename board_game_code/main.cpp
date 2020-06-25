@@ -1,0 +1,30 @@
+/*
+
+compiling procedures for SFML:
+g++ -c main.cpp && g++ main.o -o sfml-app -lsfml-graphics -lsfml-window
+-lsfml-system && ./sfml-app
+
+*/
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "game.hpp"
+#include "setup.hpp"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+int main() {
+
+  try {
+    welcome();
+    Board board(n, f, range, Condition{0.f, 0.f, 0.f, N, B, G}, I0);
+    board = world_generation(board, block_parameters);
+    auto condition = board.get_board_condition_();
+
+    main_execution(board, condition);
+  } catch (std::runtime_error const &error) {
+    std::cerr << error.what() << '\n';
+  }
+}

@@ -1,0 +1,149 @@
+#ifndef SETUP
+#define SETUP
+
+#include <SFML/Graphics.hpp>
+#include <algorithm> //std::swap
+#include <array>
+#include <cassert>
+#include <chrono> // std::chrono::milliseconds
+#include <iostream>
+#include <math.h> // pow(), fabs()
+#include <random>
+#include <string>
+#include <thread> // std::this_thread::sleep_for
+#include <time.h> // time()
+#include <vector>
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::default_random_engine gen(std::time(0));
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Pos {
+  int x; // column
+  int y; // row
+};
+
+auto operator+(const Pos &l, const Pos &r) {
+  return Pos{l.x + r.x, l.y + r.y};
+};
+
+auto operator==(const Pos &l, const Pos &r) {
+  return l.x == r.x && l.y == r.y;
+};
+
+bool operator<(const Pos &l, const Pos &r) { return l.x < r.x && l.y < r.y; };
+
+bool operator>(const Pos &l, const Pos &r) { return l.x > r.x && l.y > r.y; };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Condition {
+  float S;
+  float I;
+  float R;
+  float N;
+  float B;
+  float G;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+enum class State { S, I, R, T, B };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+class Board {
+  int n_;
+  float f_;
+  float range_;
+  Condition board_condition_;
+  int I0_;
+  std::vector<State> grid_;
+
+public:
+  Board(const int &n, const float &f, const float &range,
+        const Condition &board_condition, const int &I0)
+      : n_{n}, f_{f}, range_{range},
+        board_condition_{board_condition}, I0_{I0} {
+    // board initialization ////////////////////////
+    for (int y = 0; y != n_; ++y) {
+      for (int x = 0; x != n_; ++x) {
+        grid_.push_back(State::T);
+      }
+    }
+  };
+
+  auto state(const Pos &pos) const { return grid_[pos.x + n_ * pos.y]; };
+  void change_state(const Pos &pos, const State &updated_state) {
+    assert((pos > Pos{-1, -1} && pos < Pos{n_, n_}));
+    auto &actual_state = grid_[pos.x + n_ * pos.y];
+    actual_state = updated_state;
+  };
+  void change_board_condition_(const Condition &board_condition) {
+    board_condition_ = board_condition;
+  };
+
+  void swap(const Pos &pos0, const Pos &pos1) {
+    auto foo = state(pos0);
+    change_state(pos0, state(pos1));
+    change_state(pos1, foo);
+  };
+
+  void generate_initial_infected() {
+
+    std::uniform_int_distribution<> dist(0, n_ - 1);
+    int counter = 0;
+    while (counter != I0_) {
+      Pos pos = Pos{dist(gen), dist(gen)};
+      if (state(pos) == State::S) {
+        ++counter;
+        change_state(pos, State::I);
+      }
+    }
+  };
+
+  auto change_f_(float const f) { f_ = f; };
+
+  auto get_n_() const { return n_; }
+  auto get_N_() const { return board_condition_.N; }
+  auto get_B_() const { return board_condition_.B; }
+  auto get_G_() const { return board_condition_.G; }
+  auto get_f_() const { return f_; }
+  auto get_I0_() const { return I0_; }
+  auto get_range_() const { return range_; }
+  auto get_board_condition_() const { return board_condition_; }
+  auto get_grid_() const { return grid_; }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Block_parameters {
+  int int_block_percentage;
+  int interval1;
+  int interval2;
+  int interval3;
+  float factor0;
+  float factor1;
+  float factor2;
+  float factor3;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif
